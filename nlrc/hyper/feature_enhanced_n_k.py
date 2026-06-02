@@ -158,11 +158,10 @@ def chebyshev_map(length=1500,k=4,x0=0.123456):
         x[t] = np.cos(k*np.arccos(x[t-1]))
     return x
 
-data = mackey_glass()
-train_len = 500
-test_len = 10
-k = 3
-
+data = test_data()
+train_len = 1000
+test_len = 30
+k =3
 p = 0
 push = train_len+p
 
@@ -182,18 +181,44 @@ X_test = scalar.transform(X_test.reshape(-1,1))
 delay_X_test = scalar.transform(delay_X_test.reshape(-1,1))
 y_test = y_test.flatten()
 
-k_lst = [2,3,4,5,6,7,8,9,10]
 n_lst = [4,5,6,8,10,12,14,16]
-deg_lst = [2,3]
 reg_lst = [1e-8,1e-7,1e-6,1e-5,1e-4]
+deg_lst = [2,3]
+
+best_results = []
 
 for n in n_lst:
-        print('n = ',n)
-        for deg in deg_lst:
-            for reg in reg_lst:
-                model = nlfea(test_len=test_len,degree=deg,k=k,n=n,reg=reg)
-                model.fit(X_train,y_train,delay_X_train)
-                y_pred = model.predict(X_test[0].item(),delay_X_test)
-                y_pred = scalar.inverse_transform(y_pred.reshape(-1,1)).flatten()
-                ms = mean_squared_error(y_test,y_pred)
-                print(f'k = {k}, n = {n}, deg = {deg}, reg = {reg}, mse = {ms}')
+    print('n = ', n)
+    for deg in deg_lst:
+        for reg in reg_lst:
+            model = nlfea(
+                test_len=test_len,
+                k=k,
+                degree=deg,
+                n=n,
+                reg=reg
+            )
+            model.fit(X_train, y_train, delay_X_train)
+            y_pred = model.predict(X_test[0].item(), delay_X_test)
+            y_pred = scalar.inverse_transform(
+                y_pred.reshape(-1, 1)
+            ).flatten()
+            ms = mean_squared_error(y_test, y_pred)
+
+            print(
+                f'k = {k}, n = {n}, deg = {deg}, '
+                f'reg = {reg}, mse = {ms}')
+
+            best_results.append(
+                (ms, k, n, deg, reg))
+            best_results = sorted(best_results, key=lambda x: x[0])[:3]
+
+print()
+print(f'number of train data is {train_len}')
+print("===== TOP 3 RESULTS =====")
+
+for rank, (mse, k, n, deg, reg) in enumerate(best_results, start=1):
+    print(
+        f'{rank}. mse = {mse:.12e}, '
+        f'k = {k}, n = {n}, deg = {deg}, reg = {reg}'
+    )
