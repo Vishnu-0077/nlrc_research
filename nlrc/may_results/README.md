@@ -31,7 +31,20 @@ Discrete chaotic map: \(x_{t+1} = a \cdot x_t \cdot (1 - x_t)\) with \(a = 3.95\
 
 Delay differential equation simulating a physiological control system, with delay \(\tau = 17\), \(\beta = 0.2\), \(\gamma = 0.1\), \(n = 10\).
 
+### Tent Map
+
+Piecewise-linear chaotic map on the unit interval with \(\mu = 1.9999\), \(x_0 = 0.5422\):
+
+\[
+x_{t+1} =
+\begin{cases}
+\mu \cdot x_t & \text{if } x_t < 0.5 \\
+\mu \cdot (1 - x_t) & \text{if } x_t \geq 0.5
+\end{cases}
+\]
+
 ---
+
 
 ## Results
 
@@ -111,6 +124,46 @@ Delay differential equation simulating a physiological control system, with dela
 
 ---
 
+### Tent Map — `train_len = 100`
+
+`tentmap_100.jpeg`
+
+![Tent map model comparison with train_len = 100](tentmap_100.jpeg)
+
+**Hyperparameters:** RC (`res_size = 100`, `a = 0.3`); all NLRC variants (`n = 10`); feature_enhanced_ngrc (`k = 3`, `n = 8`, `deg = 2`, `reg = 1e-6`).
+
+| Model | 10 | 30 | 50 | 100 |
+|-------|----|----|----|-----|
+| RC (traditional) | 1e-2 | 5e-2 | 6e-2 | 0.1 |
+| Standard NLRC | 6e-2 | 0.13 | 0.15 | 0.18 |
+| leaky_nlrc | 8e-3 | 9e-2 | 0.1 | 0.12 |
+| feature_only_nlrc (b = 0.5) | 6e-2 | 6e-2 | 8e-2 | 9e-2 |
+| feature_only_nlrc (b = 5) | 3e-2 | 5e-2 | 0.1 | 0.12 |
+| feature_enhanced_ngrc | 8e-4 | inf | inf | inf |
+
+---
+
+### Tent Map — `train_len = 100`, extended `test_len`
+
+`tentmap_1000.jpg`
+
+![Tent map model comparison with extended test_len up to 1000](tentmap_1000.jpg)
+
+**Hyperparameters:** RC (`res_size = 100`, `a = 0.3`); all NLRC variants (`n = 10`); feature_enhanced_ngrc (`k = 3`, `n = 8`, `deg = 2`, `reg = 1e-6`).
+
+| Model | 10 | 30 | 50 | 1000 |
+|-------|----|----|----|------|
+| RC (traditional) | >10000 | >10000 | >10000 | >10000 |
+| Standard NLRC | 1e-2 | 0.19 | 0.19 | 0.16 |
+| leaky_nlrc | 1e-2 | 0.15 | 0.19 | 0.16 |
+| feature_only_nlrc (b = 0.5) | 5e-2 | 8e-2 | 6e-2 | 6e-2 |
+| feature_only_nlrc (b = 5) | 9e-2 | 0.11 | 9e-2 | 9e-2 |
+| feature_enhanced_ngrc | 6.6e-6 | 0.17 | NAN | NAN |
+
+> `>10000` indicates diverged predictions. `inf` and `NAN` mark invalid or out-of-bounds results.
+
+---
+
 ## Files
 
 | File | Description |
@@ -119,3 +172,5 @@ Delay differential equation simulating a physiological control system, with dela
 | `logistic_1000.jpeg` | Logistic map results, `train_len = 1000` |
 | `mackay_100.png` | Mackey–Glass results, `train_len = 100` |
 | `mackay_1000.png` | Mackey–Glass results, `train_len = 1000` |
+| `tentmap_100.jpeg` | Tent map results, `train_len = 100` |
+| `tentmap_1000.jpg` | Tent map results, `train_len = 100`, `test_len` up to 1000 |
